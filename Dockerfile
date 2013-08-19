@@ -1,28 +1,57 @@
-from	ubuntu:12.04
+# -----------------------------------------------------------------------------
+# docker-piwik
+#
+# Builds a basic docker image that can run Piwik (http://piwik.org) and serve
+# all of it's assets.
+#
+# Authors: Isaac Bythewood
+# Updated: Aug 19th, 2014
+# Require: Docker (http://www.docker.io/)
+# -----------------------------------------------------------------------------
 
-env	DEBIAN_FRONTEND noninteractive
 
-run	dpkg-divert --local --rename --add /sbin/initctl
-run	ln -s /bin/true /sbin/initctl
+# Base system is the LTS version of Ubuntu.
+from   ubuntu:12.04
 
-run	echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
-run	apt-get --yes update
-run	apt-get --yes upgrade
-run	apt-get --yes install mysql-server php5-mysql nginx supervisor wget
 
-run	sed -i '3 i\daemon off;' /etc/nginx/nginx.conf
-run	sed -i -e "s/\;daemonize = yes/daemonize = no/" /etc/php5/fpm/php-fpm.conf
-run	sed -i -e "s/\;cgi\.fix_pathinfo=1/cgi\.fix_pathinfo=0/" /etc/php5/fpm/php.ini
-run	sed -i -e "s/listen = 127\.0\.0\.1\:9000/listen = \/var\/run\/php5-fpm.sock/" /etc/php5/fpm/pool.d/www.conf
-add	./nginx-default.conf /etc/nginx/sites-available/default
-add 	./supervisord.conf /etc/supervisor/supervisord.conf
-add	./start /start
-run	chmod +x /start
+# Make sure we don't get notifications we can't answer during building.
+env    DEBIAN_FRONTEND noninteractive
 
-run	mkdir -p /srv/www/piwik
-run	wget -O - http://builds.piwik.org/latest.tar.gz | tar -C /srv/www/piwik --strip-components=1 -zx
-run	chown -R www-data:www-data /srv/www/piwik
 
-expose  80
+# An annoying error message keeps appearing unless you do this.
+run    dpkg-divert --local --rename --add /sbin/initctl
+run    ln -s /bin/true /sbin/initctl
 
-cmd	["/start"]
+
+# Download and install everything from the repos and move mysql databases.
+add    ./apt/sources.list /etc/apt/sources.list
+run    apt-get --yes update; apt-get --yes upgrade
+run	   apt-get --yes install git supervisor nginx php5-mysql php5-gd mysql-server
+run    mkdir /data
+
+
+# Load in all of our config files.
+add    ./nginx/nginx.conf /etc/nginx/nginx.conf
+add    ./nginx/sites-enabled/default /etc/nginx/sites-enabled/default
+add    ./php5/fpm/php-fpm.conf /etc/php5/fpm/php-fpm.conf
+add    ./php5/fpm/php.ini /etc/php5/fpm/php.ini
+add    ./php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf
+add    ./supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+add    ./supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
+add    ./supervisor/conf.d/mysqld.conf /etc/supervisor/conf.d/mysqld.conf
+add    ./supervisor/conf.d/php5-fpm.conf /etc/supervisor/conf.d/php5-fpm.conf
+add    ./mysql/my.cnf /etc/mysql/my.cnf
+add    ./mysql/base.sql /etc/mysql/base.sql
+add    ./scripts/init /init
+add    ./scripts/start /start
+
+
+# Fix all permissions
+run	   chmod +x /start; chmod +x /init
+
+
+# 80 is for nginx web, /data contains static files and database /start runs it.
+expose 80
+volume ["/data"]
+cmd    ["/start"]
+

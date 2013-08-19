@@ -1,7 +1,8 @@
 server {
-    server_name localhost;
+    listen 80 default;
+    server_name _;
 
-    root /srv/www/piwik;
+    root /data/piwik;
     index index.php index.html index.htm;
     
     location ~ \.php$ {
