@@ -25,6 +25,7 @@ then
 elif [ ! -f /srv/www/piwik/config.ini.php ]
 then
     cp /data/config.ini.php /srv/www/piwik/config/config.ini.php
+    chown www-data:www-data /srv/www/piwik/config/config.ini.php
 fi
 
 

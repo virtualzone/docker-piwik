@@ -23,11 +23,12 @@ run    dpkg-divert --local --rename --add /sbin/initctl
 run    ln -s /bin/true /sbin/initctl
 
 
-# Download and install everything from the repos and move mysql databases.
+# Download and install everything from the repos and add geo location database
 add    ./apt/sources.list /etc/apt/sources.list
 run    apt-get --yes update; apt-get --yes upgrade
-run	   apt-get --yes install git supervisor nginx php5-mysql php5-gd mysql-server pwgen
+run	   apt-get --yes install git supervisor nginx php5-mysql php5-gd mysql-server pwgen wget
 run    mkdir -p /srv/www/; cd /srv/www/; git clone -b 1.X https://github.com/piwik/piwik.git
+run    cd /srv/www/piwik/misc; wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz; gzip -d GeoLiteCity.dat.gz
 
 
 # Load in all of our config files.
