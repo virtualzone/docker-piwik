@@ -5,6 +5,15 @@ help on getting started with docker see the [official getting started guide][0].
 For more information on Piwik and check out it's [website][1].
 
 
+## Use pre-built docker-piwik
+
+This will grab my version of docker-piwik which may or may not be out of date
+and is a huge image file download. I recommend building docker-piwik yourself to
+avoid all these issues.
+
+    docker pull overshard/piwik
+
+
 ## Building docker-piwik
 
 Running this will build you a docker image with the latest version of both
@@ -47,6 +56,13 @@ can be a pain to change later.
  + `overshard/piwik` is simply what I called my docker build of this image
  + `-d=true` allows this to run cleanly as a daemon, remove for debugging
  + `-p` is the port it connects to, `-p=host_port:docker_port`
+
+
+## Why put the core repo inside of the data directory?
+
+Because PHP devs seem to feel like updating files on the system itself and just
+downloading files wherever in their project. This means we have pull the repo
+to the data dir so that all these on the fly updates are persistent.
 
 
 [0]: http://www.docker.io/gettingstarted/
