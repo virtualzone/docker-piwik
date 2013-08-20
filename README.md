@@ -26,43 +26,35 @@ docker-piwik and Piwik itself.
 
 ## Running docker-piwik
 
-Once you get the system built you'll need to run the `init` once to create your
-database and collect static files. The first item in the `-v` option,
-`/mnt/piwik`, is the location on the host machine you wish to store these files.
-You can now run the `start` command at any time to get the whole thing running.
-If you have no other websites running on your server and just want piwk then
-you can also map the port `-p` directly to `80`, `-p=80:80` and it will act as
-a complete server solution.
+Running the first time will setup MySQL to be in your data dir shared with your
+host so that you can back it up if you want to. It will also set your port to
+a static port of your choice so that you can easily map a proxy to it. If this
+is the only thing running on your system you can map the port to 80 and no
+proxy is needed. i.e. `-p=80:80` Also be sure your mounted directory on your
+host machine is already created before running this `mkdir -p /mnt/piwik`.
 
-    docker run -v=/mnt/piwik:/data overshard/piwik /init
-    docker run -d=true -p=10000:80 -v=/mnt/piwik:/data overshard/piwik /start
+    sudo docker run -p=10000:80 -v=/mnt/piwik:/data overshard/piwik /start
 
-### Running for the first time
+Note that the first time you run this it sets up your piwik user and database
+as well as locking down your root user. **This will echo out your database
+settings for use when setting up Piwik when you connect via HTTP.** Your root
+and piwik user passwords are stored in your data dir incase you need them in the
+future.
 
-The first time you run Piwik and connect to it via HTTP you're going to have to
-setup some basics. I've locked down MySQL from all outside connections so for
-the database just connect using `root`, blank everything else, database name
-`piwik`. Everything else, like your first site, is up to you.
+From now on when you start/stop docker-piwik you should use the container id
+with the following commands. To get your container id, after you initial run
+type `sudo docker ps` and it will show up on the left side followed by the image
+name which is `overshard/piwik:latest`.
 
-### IMPORTANT NOTE: First Run
+    sudo docker start <container_id>
+    sudo docker stop <container_id>
 
-Be sure you are using the domain name to connect/setup that you are going to use
-in the future. No test domain name etc, it stores this as part of the setup and
-can be a pain to change later.
-
-### Notes on the run commands
+### Notes on the run command
 
  + `-v` is the volume you are mounting `-v=host_dir:docker_dir`
  + `overshard/piwik` is simply what I called my docker build of this image
  + `-d=true` allows this to run cleanly as a daemon, remove for debugging
  + `-p` is the port it connects to, `-p=host_port:docker_port`
-
-
-## Why put the core repo inside of the data directory?
-
-Because PHP devs seem to feel like updating files on the system itself and just
-downloading files wherever in their project. This means we have pull the repo
-to the data dir so that all these on the fly updates are persistent.
 
 
 [0]: http://www.docker.io/gettingstarted/

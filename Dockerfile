@@ -26,8 +26,8 @@ run    ln -s /bin/true /sbin/initctl
 # Download and install everything from the repos and move mysql databases.
 add    ./apt/sources.list /etc/apt/sources.list
 run    apt-get --yes update; apt-get --yes upgrade
-run	   apt-get --yes install git supervisor nginx php5-mysql php5-gd mysql-server
-run    mkdir /data
+run	   apt-get --yes install git supervisor nginx php5-mysql php5-gd mysql-server pwgen
+run    mkdir -p /srv/www/; cd /srv/www/; git clone -b 1.X https://github.com/piwik/piwik.git
 
 
 # Load in all of our config files.
@@ -41,13 +41,11 @@ add    ./supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
 add    ./supervisor/conf.d/mysqld.conf /etc/supervisor/conf.d/mysqld.conf
 add    ./supervisor/conf.d/php5-fpm.conf /etc/supervisor/conf.d/php5-fpm.conf
 add    ./mysql/my.cnf /etc/mysql/my.cnf
-add    ./mysql/base.sql /etc/mysql/base.sql
-add    ./scripts/init /init
 add    ./scripts/start /start
 
 
 # Fix all permissions
-run	   chmod +x /start; chmod +x /init
+run	   chmod +x /start; chown -R www-data:www-data /srv/www/piwik
 
 
 # 80 is for nginx web, /data contains static files and database /start runs it.

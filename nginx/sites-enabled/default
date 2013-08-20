@@ -2,7 +2,7 @@ server {
     listen 80 default;
     server_name _;
 
-    root /data/piwik;
+    root /srv/www/piwik;
     index index.php index.html index.htm;
     
     location ~ \.php$ {
