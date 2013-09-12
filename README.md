@@ -5,15 +5,6 @@ help on getting started with docker see the [official getting started guide][0].
 For more information on Piwik and check out it's [website][1].
 
 
-## Use pre-built docker-piwik
-
-This will grab my version of docker-piwik which may or may not be out of date
-and is a huge image file download. I recommend building docker-piwik yourself to
-avoid all these issues.
-
-    docker pull overshard/piwik
-
-
 ## Building docker-piwik
 
 Running this will build you a docker image with the latest version of both
