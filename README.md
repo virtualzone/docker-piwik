@@ -1,3 +1,5 @@
+**This project is no longer under development, if you'd like to fork and continue the project please do! Let me know your fork and I'll link to it.**
+
 # docker-piwik
 
 A nice and easy way to get a Piwik instance up and running using docker. For
